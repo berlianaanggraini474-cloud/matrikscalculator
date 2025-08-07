@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kalkulator Matrix</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #4e54c8, #8f94fb);
+      font-family: sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #1c1c1c;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 0 20px #00000070;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .matrix-container {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(2, 50px);
+      gap: 10px;
+    }
+
+    input {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .buttons {
+      margin: 20px 0;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      background-color: #ff9800;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: repeat(2, 50px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .result-cell {
+      width: 50px;
+      height: 50px;
+      background-color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Kalkulator Matrix</h2>
+
+    <div class="matrix-container">
+      <div>
+        <strong>Matrix A</strong>
+        <div class="matrix" id="matrixA">
+          <input type="number" id="a00" value="0" />
+          <input type="number" id="a01" value="0" />
+          <input type="number" id="a10" value="0" />
+          <input type="number" id="a11" value="0" />
+        </div>
+      </div>
+
+      <div>
+        <strong>Matrix B</strong>
+        <div class="matrix" id="matrixB">
+          <input type="number" id="b00" value="0" />
+          <input type="number" id="b01" value="0" />
+          <input type="number" id="b10" value="0" />
+          <input type="number" id="b11" value="0" />
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button onclick="tambahMatrix()">Tambah (A + B)</button>
+      <button onclick="kaliMatrix()">Kali (A × B)</button>
+      <button onclick="bersihkan()">Bersihkan</button>
+    </div>
+
+    <h3>Hasil</h3>
+    <div class="result" id="hasil">
+      <div class="result-cell" id="r00">0</div>
+      <div class="result-cell" id="r01">0</div>
+      <div class="result-cell" id="r10">0</div>
+      <div class="result-cell" id="r11">0</div>
+    </div>
+  </div>
+
+  <script>
+    function getValue(id) {
+      return parseInt(document.getElementById(id).value) || 0;
+    }
+
+    function tambahMatrix() {
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 2; j++) {
+          let a = getValue(`a${i}${j}`);
+          let b = getValue(`b${i}${j}`);
+          document.getElementById(`r${i}${j}`).innerText = a + b;
+        }
+      }
+    }
+
+    function kaliMatrix() {
+      let a = [
+        [getValue("a00"), getValue("a01")],
+        [getValue("a10"), getValue("a11")]
+      ];
+      let b = [
+        [getValue("b00"), getValue("b01")],
+        [getValue("b10"), getValue("b11")]
+      ];
+
+      let result = [
+        [0, 0],
+        [0, 0]
+      ];
+
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 2; j++) {
+          result[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j];
+          document.getElementById(`r${i}${j}`).innerText = result[i][j];
+        }
+      }
+    }
+
+    function bersihkan() {
+      let inputs = document.querySelectorAll("input");
+      inputs.forEach(input => input.value = 0);
+
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 2; j++) {
+          document.getElementById(`r${i}${j}`).innerText = 0;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
