@@ -1,12 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Kalkulator Matriks 3x3</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Matriks</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    input { width: 50px; margin: 2px; }
-    .matrix { margin-bottom: 20px; }
-    button { margin: 5px; }
+    body {
+      background: linear-gradient(to right, #1f1c2c, #ff69b4); /* hitam ke pink */
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h2, h3 {
+      color: #ffccff;
+    }
+
+    .matrix {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 50px;
+      height: 30px;
+      margin: 2px;
+      text-align: center;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 15px;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #ff85c1;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #ffe6f0;
+    }
   </style>
 </head>
 <body>
@@ -22,9 +69,11 @@
     <div id="matrixB"></div>
   </div>
 
-  <button onclick="calculate('add')">Penjumlahan</button>
-  <button onclick="calculate('subtract')">Pengurangan</button>
-  <button onclick="calculate('multiply')">Perkalian</button>
+  <div>
+    <button onclick="calculate('add')">Penjumlahan</button>
+    <button onclick="calculate('subtract')">Pengurangan</button>
+    <button onclick="calculate('multiply')">Perkalian</button>
+  </div>
 
   <h3>Hasil</h3>
   <div id="result"></div>
@@ -64,9 +113,11 @@
       for (let i = 0; i < 3; i++) {
         result[i] = [];
         for (let j = 0; j < 3; j++) {
-          if (op === "add") result[i][j] = A[i][j] + B[i][j];
-          else if (op === "subtract") result[i][j] = A[i][j] - B[i][j];
-          else if (op === "multiply") {
+          if (op === "add") {
+            result[i][j] = A[i][j] + B[i][j];
+          } else if (op === "subtract") {
+            result[i][j] = A[i][j] - B[i][j];
+          } else if (op === "multiply") {
             result[i][j] = 0;
             for (let k = 0; k < 3; k++) {
               result[i][j] += A[i][k] * B[k][j];
@@ -92,6 +143,7 @@
       });
     }
 
+    // Buat input matrix di awal
     createMatrixInputs("matrixA");
     createMatrixInputs("matrixB");
   </script>
