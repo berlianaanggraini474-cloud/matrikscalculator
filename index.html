@@ -1,254 +1,243 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kalkulator Matriks</title>
   <style>
     body {
-      background: linear-gradient(to bottom, #ff69b4, #000000);
-      font-family: Arial, sans-serif;
-      text-align: center;
       margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #ff66b2, #000);
       color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-
-    .matrix-input {
+    h1 {
+      margin-top: 20px;
+    }
+    .input-section, .matrix-section, .result-section {
+      margin: 10px 0;
+      text-align: center;
+    }
+    input[type=number] {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      margin: 3px;
+      font-size: 16px;
+      background-color: black;
+      color: white;
+      border: 2px solid white;
+    }
+    .matrix-container {
       display: inline-block;
       margin: 10px;
     }
-
-    .matrix-input input {
-      width: 40px;
-      height: 40px;
-      background-color: #000;
-      color: white;
-      border: 1px solid #fff;
-      text-align: center;
-      font-size: 16px;
-      margin: 2px;
+    .matrix-label {
+      margin-bottom: 5px;
+      font-weight: bold;
     }
-
-    .controls {
-      margin: 20px auto;
+    .button-grid {
       display: grid;
       grid-template-columns: repeat(2, auto);
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
+      margin: 10px 0;
     }
-
-    .controls button {
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
       background-color: yellow;
       border: none;
-      padding: 10px;
-      font-weight: bold;
       cursor: pointer;
     }
-
-    #hasilContainer {
-      margin-top: 20px;
+    #result-container {
+      display: inline-block;
+      margin-top: 10px;
     }
-
-    #hasilContainer table {
-      margin: 0 auto;
-      border-collapse: collapse;
+    .matrix-row {
+      display: flex;
+      justify-content: center;
     }
-
-    #hasilContainer td {
+    .result-input {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      margin: 3px;
+      font-size: 16px;
       background-color: black;
       color: white;
-      width: 40px;
-      height: 40px;
-      border: 1px solid white;
-      text-align: center;
+      border: 2px solid white;
     }
-
-    label, select, input[type="number"] {
-      color: white;
-      font-weight: bold;
-      margin: 5px;
-    }
-
-    input[type="number"] {
-      background-color: black;
-      color: white;
-      width: 40px;
-      text-align: center;
-      border: 1px solid white;
-    }
-
-    #matrix-controls {
-      margin: 10px 0;
+    .footer-space {
+      height: 10px; /* sangat kecil agar tidak muncul scroll */
     }
   </style>
 </head>
 <body>
-
   <h1>Kalkulator Matriks</h1>
-
-  <div id="matrix-controls">
-    <label>Baris:</label><input type="number" id="baris" value="2" min="1" />
-    <label>Kolom:</label><input type="number" id="kolom" value="2" min="1" />
-    <button onclick="buatMatrix()">Buat Matriks</button>
+  <div class="input-section">
+    Baris: <input type="number" id="rows" value="2" min="1">
+    Kolom: <input type="number" id="cols" value="2" min="1">
+    <button onclick="createMatrices()">Buat Matriks</button>
   </div>
-
-  <div class="matrix-input" id="matrixA"></div>
-  <div class="matrix-input" id="matrixB"></div>
-
-  <div class="controls">
-    <button onclick="tambah()">Tambah (A + B)</button>
-    <button onclick="kurang()">Kurang (A - B)</button>
-    <button onclick="kali()">Kali (A × B)</button>
-    <button onclick="transpose('A')">Transpose A</button>
-    <button onclick="transpose('B')">Transpose B</button>
-    <button onclick="determinan()">Determinan A</button>
-    <button onclick="inverse()">Invers A</button>
-    <button onclick="bersihkan()">Bersihkan</button>
+  <div class="matrix-section">
+    <div class="matrix-container" id="matrixAContainer">
+      <div class="matrix-label">Matrix A</div>
+      <div id="matrixA"></div>
+    </div>
+    <div class="matrix-container" id="matrixBContainer">
+      <div class="matrix-label">Matrix B</div>
+      <div id="matrixB"></div>
+    </div>
   </div>
-
-  <div id="hasilContainer">
-    <h2 style="color:white;">Hasil</h2>
-    <div id="hasil"></div>
+  <div class="button-grid">
+    <button onclick="addMatrices()">Tambah (A + B)</button>
+    <button onclick="subtractMatrices()">Kurang (A - B)</button>
+    <button onclick="multiplyMatrices()">Kali (A × B)</button>
+    <button onclick="transposeMatrix('A')">Transpose A</button>
+    <button onclick="transposeMatrix('B')">Transpose B</button>
+    <button onclick="determinantMatrix()">Determinan A</button>
+    <button onclick="inverseMatrix()">Invers A</button>
+    <button onclick="clearMatrices()">Bersihkan</button>
   </div>
+  <div class="result-section">
+    <h2>Hasil</h2>
+    <div id="result-container"></div>
+  </div>
+  <div class="footer-space"></div>
 
   <script>
-    function buatMatrix() {
-      const baris = parseInt(document.getElementById("baris").value);
-      const kolom = parseInt(document.getElementById("kolom").value);
-      const containerA = document.getElementById("matrixA");
-      const containerB = document.getElementById("matrixB");
-      containerA.innerHTML = "<div>Matrix A</div>";
-      containerB.innerHTML = "<div>Matrix B</div>";
-      for (let i = 0; i < baris; i++) {
-        for (let j = 0; j < kolom; j++) {
-          containerA.innerHTML += `<input type="number" id="A${i}${j}" value="0">`;
-          containerB.innerHTML += `<input type="number" id="B${i}${j}" value="0">`;
-        }
-        containerA.innerHTML += "<br>";
-        containerB.innerHTML += "<br>";
-      }
-    }
-
-    function getMatrix(idPrefix, rows, cols) {
-      let matrix = [];
+    function createMatrixInputs(id, rows, cols) {
+      const container = document.getElementById(id);
+      container.innerHTML = '';
       for (let i = 0; i < rows; i++) {
-        let row = [];
+        const row = document.createElement('div');
+        row.className = "matrix-row";
         for (let j = 0; j < cols; j++) {
-          let val = parseFloat(document.getElementById(idPrefix + i + j).value);
-          row.push(val);
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.value = 0;
+          row.appendChild(input);
         }
-        matrix.push(row);
+        container.appendChild(row);
       }
-      return matrix;
     }
 
-    function tampilkanHasil(matrix) {
-      let html = "<table>";
-      for (let i = 0; i < matrix.length; i++) {
-        html += "<tr>";
-        for (let j = 0; j < matrix[0].length; j++) {
-          html += `<td>${Number.isInteger(matrix[i][j]) ? matrix[i][j] : matrix[i][j].toFixed(2)}</td>`;
-        }
-        html += "</tr>";
-      }
-      html += "</table>";
-      document.getElementById("hasil").innerHTML = html;
+    function createMatrices() {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      createMatrixInputs('matrixA', rows, cols);
+      createMatrixInputs('matrixB', rows, cols);
+      clearResult();
     }
 
-    function tambah() {
-      const r = parseInt(document.getElementById("baris").value);
-      const c = parseInt(document.getElementById("kolom").value);
-      const A = getMatrix("A", r, c);
-      const B = getMatrix("B", r, c);
-      let C = [];
-      for (let i = 0; i < r; i++) {
-        let row = [];
-        for (let j = 0; j < c; j++) {
-          row.push(A[i][j] + B[i][j]);
-        }
-        C.push(row);
-      }
-      tampilkanHasil(C);
+    function getMatrix(id) {
+      const container = document.getElementById(id);
+      const rows = Array.from(container.children);
+      return rows.map(row => Array.from(row.children).map(input => parseFloat(input.value)));
     }
 
-    function kurang() {
-      const r = parseInt(document.getElementById("baris").value);
-      const c = parseInt(document.getElementById("kolom").value);
-      const A = getMatrix("A", r, c);
-      const B = getMatrix("B", r, c);
-      let C = [];
-      for (let i = 0; i < r; i++) {
-        let row = [];
-        for (let j = 0; j < c; j++) {
-          row.push(A[i][j] - B[i][j]);
-        }
-        C.push(row);
+    function displayResult(matrix) {
+      const resultContainer = document.getElementById('result-container');
+      resultContainer.innerHTML = '';
+      if (typeof matrix === 'number') {
+        resultContainer.innerText = matrix;
+        return;
       }
-      tampilkanHasil(C);
+      matrix.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        row.forEach(val => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'result-input';
+          input.readOnly = true;
+          input.value = Number.isInteger(val) ? val : val.toFixed(2);
+          rowDiv.appendChild(input);
+        });
+        resultContainer.appendChild(rowDiv);
+      });
     }
 
-    function kali() {
-      const r = parseInt(document.getElementById("baris").value);
-      const c = parseInt(document.getElementById("kolom").value);
-      const A = getMatrix("A", r, c);
-      const B = getMatrix("B", r, c);
-      if (A[0].length !== B.length) return alert("Ordo tidak cocok untuk perkalian");
-      let C = [];
-      for (let i = 0; i < r; i++) {
-        let row = [];
-        for (let j = 0; j < c; j++) {
-          let sum = 0;
-          for (let k = 0; k < c; k++) {
-            sum += A[i][k] * B[k][j];
-          }
-          row.push(sum);
-        }
-        C.push(row);
-      }
-      tampilkanHasil(C);
+    function addMatrices() {
+      const A = getMatrix('matrixA');
+      const B = getMatrix('matrixB');
+      const result = A.map((row, i) => row.map((val, j) => val + B[i][j]));
+      displayResult(result);
     }
 
-    function transpose(which) {
-      const r = parseInt(document.getElementById("baris").value);
-      const c = parseInt(document.getElementById("kolom").value);
-      const M = getMatrix(which, r, c);
-      let T = [];
-      for (let i = 0; i < c; i++) {
-        let row = [];
-        for (let j = 0; j < r; j++) {
-          row.push(M[j][i]);
-        }
-        T.push(row);
-      }
-      tampilkanHasil(T);
+    function subtractMatrices() {
+      const A = getMatrix('matrixA');
+      const B = getMatrix('matrixB');
+      const result = A.map((row, i) => row.map((val, j) => val - B[i][j]));
+      displayResult(result);
     }
 
-    function determinan() {
-      const A = getMatrix("A", 2, 2);
+    function multiplyMatrices() {
+      const A = getMatrix('matrixA');
+      const B = getMatrix('matrixB');
+      const result = A.map((row, i) =>
+        B[0].map((_, j) =>
+          row.reduce((sum, val, k) => sum + val * B[k][j], 0)
+        )
+      );
+      displayResult(result);
+    }
+
+    function transposeMatrix(matrixId) {
+      const M = getMatrix(matrixId === 'A' ? 'matrixA' : 'matrixB');
+      const result = M[0].map((_, i) => M.map(row => row[i]));
+      displayResult(result);
+    }
+
+    function determinantMatrix() {
+      const A = getMatrix('matrixA');
+      if (A.length !== A[0].length) {
+        alert('Determinan hanya untuk matriks persegi!');
+        return;
+      }
+      if (A.length === 2) {
+        const det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+        displayResult([[det]]);
+      } else {
+        alert('Saat ini hanya mendukung matriks 2x2');
+      }
+    }
+
+    function inverseMatrix() {
+      const A = getMatrix('matrixA');
+      if (A.length !== 2 || A[0].length !== 2) {
+        alert('Saat ini hanya mendukung invers untuk matriks 2x2');
+        return;
+      }
       const det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
-      tampilkanHasil([[det]]);
-    }
-
-    function inverse() {
-      const A = getMatrix("A", 2, 2);
-      const det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
-      if (det === 0) return alert("Matrix tidak memiliki invers (determinan = 0)");
+      if (det === 0) {
+        alert('Matriks tidak memiliki invers (determinan = 0)');
+        return;
+      }
       const inv = [
         [ A[1][1]/det, -A[0][1]/det ],
         [-A[1][0]/det,  A[0][0]/det ]
       ];
-      tampilkanHasil(inv);
+      displayResult(inv);
     }
 
-    function bersihkan() {
-      document.getElementById("hasil").innerHTML = "";
+    function clearMatrices() {
+      document.getElementById('matrixA').innerHTML = '';
+      document.getElementById('matrixB').innerHTML = '';
+      document.getElementById('result-container').innerHTML = '';
     }
 
-    // Otomatis buat matrix awal 2x2
-    window.onload = buatMatrix;
+    function clearResult() {
+      document.getElementById('result-container').innerHTML = '';
+    }
+
+    window.onload = createMatrices;
   </script>
 </body>
 </html>
