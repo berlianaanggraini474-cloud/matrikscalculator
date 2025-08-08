@@ -1,230 +1,289 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Kalkulator Matriks</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: linear-gradient(to bottom right, #6A5ACD, #9370DB);
+      background-color: pink;
+      font-family: Arial, sans-serif;
+      text-align: center;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    }
+
+    .container {
+      background-color: #111;
+      border-radius: 15px;
+      display: inline-block;
       padding: 20px;
+      margin-top: 30px;
     }
 
     h1 {
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
 
-    .matrix-section {
-      background-color: #1c1c1c;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 10px;
-      width: fit-content;
-      text-align: center;
+    .matrix-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
     }
 
-    .matrix-inputs {
+    .matrix {
       display: grid;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 5px;
+      margin: 10px 0;
     }
 
-    .matrix-inputs input {
+    input[type="number"] {
       width: 50px;
       height: 50px;
       font-size: 18px;
       text-align: center;
-      border-radius: 5px;
-      border: none;
-      background-color: #333;
+      background-color: black;
       color: white;
+      border: none;
+      border-radius: 5px;
     }
 
     .controls {
-      margin-bottom: 20px;
-    }
-
-    .controls input {
-      width: 40px;
-      text-align: center;
-      font-size: 16px;
+      margin: 10px 0;
     }
 
     button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
       background-color: orange;
-      color: #1c1c1c;
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    .result {
+    #result {
+      display: grid;
+      gap: 5px;
+      justify-content: center;
       margin-top: 20px;
     }
 
-    .matrix-title {
+    .label {
+      margin-top: 10px;
       font-weight: bold;
-      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .ordo-selector {
+      margin-bottom: 20px;
+    }
+
+    .ordo-selector input {
+      width: 50px;
+      height: 30px;
+      font-size: 16px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>Kalkulator Matriks</h1>
+  <div class="container">
+    <h1>Kalkulator Matriks</h1>
 
-  <div class="controls">
-    Ordo Matrix: 
-    <input type="number" id="rows" value="2" min="1"> × 
-    <input type="number" id="cols" value="2" min="1">
-    <button onclick="generateMatrices()">Buat Matrix</button>
-  </div>
+    <div class="ordo-selector">
+      <label>Baris: <input type="number" id="rows" value="2" min="1" /></label>
+      <label>Kolom: <input type="number" id="cols" value="2" min="1" /></label>
+      <button onclick="generateMatrices()">Buat Matriks</button>
+    </div>
 
-  <div class="matrix-section">
-    <div class="matrix-title">Matrix A</div>
-    <div id="matrixA" class="matrix-inputs"></div>
-  </div>
+    <div class="matrix-container">
+      <div>
+        <div class="label">Matrix A</div>
+        <div id="matrixA" class="matrix"></div>
+      </div>
+      <div>
+        <div class="label">Matrix B</div>
+        <div id="matrixB" class="matrix"></div>
+      </div>
+    </div>
 
-  <div class="matrix-section">
-    <div class="matrix-title">Matrix B</div>
-    <div id="matrixB" class="matrix-inputs"></div>
-  </div>
+    <div class="controls">
+      <button onclick="calculate('add')">Tambah (A + B)</button>
+      <button onclick="calculate('subtract')">Kurang (A - B)</button>
+      <button onclick="calculate('multiply')">Kali (A × B)</button>
+      <button onclick="transpose('A')">Transpose A</button>
+      <button onclick="transpose('B')">Transpose B</button>
+      <button onclick="determinant('A')">Determinan A</button>
+      <button onclick="inverse('A')">Invers A</button>
+      <button onclick="clearResult()">Bersihkan</button>
+    </div>
 
-  <div>
-    <button onclick="operate('add')">Tambah (A + B)</button>
-    <button onclick="operate('subtract')">Kurang (A - B)</button>
-    <button onclick="operate('multiply')">Kali (A × B)</button>
-    <button onclick="transpose('A')">Transpose A</button>
-    <button onclick="transpose('B')">Transpose B</button>
-  </div>
-
-  <div class="matrix-section result">
-    <div class="matrix-title">Hasil</div>
-    <div id="result" class="matrix-inputs"></div>
+    <div class="label">Hasil</div>
+    <div id="result" class="matrix"></div>
   </div>
 
   <script>
-    let rowCount = 2, colCount = 2;
-
-    function generateMatrices() {
-      rowCount = parseInt(document.getElementById("rows").value);
-      colCount = parseInt(document.getElementById("cols").value);
-      createMatrix("matrixA", rowCount, colCount);
-      createMatrix("matrixB", rowCount, colCount);
-      clearResult();
-    }
-
-    function createMatrix(id, rows, cols) {
-      const container = document.getElementById(id);
+    function generateMatrixInputs(containerId, rows, cols) {
+      const container = document.getElementById(containerId);
       container.innerHTML = '';
-      container.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
-
+      container.style.gridTemplateColumns = `repeat(${cols}, auto)`;
       for (let i = 0; i < rows * cols; i++) {
-        const input = document.createElement("input");
-        input.type = "number";
-        input.value = "0";
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = '0';
         container.appendChild(input);
       }
     }
 
-    function getMatrix(id, rows, cols) {
-      const container = document.getElementById(id).children;
+    function generateMatrices() {
+      const rows = parseInt(document.getElementById("rows").value);
+      const cols = parseInt(document.getElementById("cols").value);
+      generateMatrixInputs("matrixA", rows, cols);
+      generateMatrixInputs("matrixB", rows, cols);
+      document.getElementById("result").innerHTML = '';
+    }
+
+    function getMatrix(containerId) {
+      const container = document.getElementById(containerId);
+      const inputs = container.getElementsByTagName("input");
+      const rows = parseInt(document.getElementById("rows").value);
+      const cols = parseInt(document.getElementById("cols").value);
       const matrix = [];
       for (let i = 0; i < rows; i++) {
         const row = [];
         for (let j = 0; j < cols; j++) {
-          const index = i * cols + j;
-          row.push(Number(container[index].value));
+          row.push(Number(inputs[i * cols + j].value));
         }
         matrix.push(row);
       }
       return matrix;
     }
 
-    function operate(type) {
-      const A = getMatrix("matrixA", rowCount, colCount);
-      const B = getMatrix("matrixB", rowCount, colCount);
+    function displayMatrix(matrix) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = '';
+      const rows = matrix.length;
+      const cols = matrix[0].length;
+      resultDiv.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const cell = document.createElement("input");
+          cell.type = "number";
+          cell.value = matrix[i][j];
+          cell.disabled = true;
+          resultDiv.appendChild(cell);
+        }
+      }
+    }
+
+    function calculate(op) {
+      const A = getMatrix("matrixA");
+      const B = getMatrix("matrixB");
+      const rows = A.length;
+      const cols = A[0].length;
       const result = [];
 
-      if (type === "add" || type === "subtract") {
-        for (let i = 0; i < rowCount; i++) {
-          const row = [];
-          for (let j = 0; j < colCount; j++) {
-            if (type === "add") {
-              row.push(A[i][j] + B[i][j]);
-            } else {
-              row.push(A[i][j] - B[i][j]);
-            }
-          }
-          result.push(row);
-        }
-      } else if (type === "multiply") {
-        if (A[0].length !== B.length) {
-          alert("Jumlah kolom A harus sama dengan jumlah baris B untuk perkalian!");
-          return;
-        }
+      if (op === 'multiply' && A[0].length !== B.length) {
+        alert("Kolom A harus sama dengan baris B untuk perkalian!");
+        return;
+      }
 
-        for (let i = 0; i < A.length; i++) {
-          const row = [];
-          for (let j = 0; j < B[0].length; j++) {
+      for (let i = 0; i < rows; i++) {
+        result[i] = [];
+        for (let j = 0; j < cols; j++) {
+          if (op === 'add') result[i][j] = A[i][j] + B[i][j];
+          else if (op === 'subtract') result[i][j] = A[i][j] - B[i][j];
+          else if (op === 'multiply') {
             let sum = 0;
             for (let k = 0; k < A[0].length; k++) {
               sum += A[i][k] * B[k][j];
             }
-            row.push(sum);
+            result[i][j] = sum;
           }
-          result.push(row);
         }
       }
 
-      displayResult(result);
+      displayMatrix(result);
     }
 
     function transpose(matrixId) {
-      const isA = matrixId === 'A';
-      const matrix = getMatrix(isA ? "matrixA" : "matrixB", rowCount, colCount);
-      const transposed = [];
-
-      for (let i = 0; i < matrix[0].length; i++) {
-        const row = [];
-        for (let j = 0; j < matrix.length; j++) {
-          row.push(matrix[j][i]);
-        }
-        transposed.push(row);
-      }
-
-      displayResult(transposed);
+      const matrix = getMatrix("matrix" + matrixId);
+      const transposed = matrix[0].map((_, i) => matrix.map(row => row[i]));
+      displayMatrix(transposed);
     }
 
-    function displayResult(matrix) {
-      const container = document.getElementById("result");
-      container.innerHTML = '';
-      const rows = matrix.length;
-      const cols = matrix[0].length;
-      container.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
+    function determinant(matrixId) {
+      const matrix = getMatrix("matrix" + matrixId);
+      if (matrix.length !== matrix[0].length) {
+        alert("Determinan hanya untuk matriks persegi.");
+        return;
+      }
 
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-          const input = document.createElement("input");
-          input.value = matrix[i][j];
-          input.disabled = true;
-          container.appendChild(input);
+      function det(mat) {
+        if (mat.length === 1) return mat[0][0];
+        if (mat.length === 2) return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+
+        let sum = 0;
+        for (let i = 0; i < mat[0].length; i++) {
+          const sub = mat.slice(1).map(row => row.filter((_, j) => j !== i));
+          sum += ((i % 2 === 0 ? 1 : -1) * mat[0][i] * det(sub));
+        }
+        return sum;
+      }
+
+      const result = [[det(matrix)]];
+      displayMatrix(result);
+    }
+
+    function inverse(matrixId) {
+      const matrix = getMatrix("matrix" + matrixId);
+      const n = matrix.length;
+      if (n !== matrix[0].length) {
+        alert("Invers hanya untuk matriks persegi.");
+        return;
+      }
+
+      let I = [];
+      for (let i = 0; i < n; i++) {
+        I[i] = [];
+        for (let j = 0; j < n; j++) {
+          I[i][j] = i === j ? 1 : 0;
         }
       }
+
+      for (let i = 0; i < n; i++) {
+        let factor = matrix[i][i];
+        if (factor === 0) {
+          alert("Matriks tidak memiliki invers.");
+          return;
+        }
+
+        for (let j = 0; j < n; j++) {
+          matrix[i][j] /= factor;
+          I[i][j] /= factor;
+        }
+
+        for (let k = 0; k < n; k++) {
+          if (k !== i) {
+            let factor2 = matrix[k][i];
+            for (let j = 0; j < n; j++) {
+              matrix[k][j] -= factor2 * matrix[i][j];
+              I[k][j] -= factor2 * I[i][j];
+            }
+          }
+        }
+      }
+
+      displayMatrix(I);
     }
 
     function clearResult() {
       document.getElementById("result").innerHTML = '';
     }
 
-    // Inisialisasi awal
-    window.onload = generateMatrices;
+    // Load awal
+    generateMatrices();
   </script>
 </body>
 </html>
