@@ -1,263 +1,269 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Kalkulator Matriks</title>
   <style>
     body {
-      background-color: #b97c8b; /* pink tua */
-      font-family: Arial, sans-serif;
-      color: white;
-      text-align: center;
       margin: 0;
       padding: 0;
-      height: 100vh;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #d87093, #000000);
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      padding-top: 30px;
+      color: white;
     }
 
     .container {
-      background-color: #b05f7c; /* pink tua tua untuk kontainer */
-      padding: 20px;
-      width: 100vw;
-      box-sizing: border-box;
-      min-height: 100vh;
+      text-align: center;
+      width: 90%;
+      max-width: 700px;
     }
 
     input[type="number"] {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 30px;
       text-align: center;
-      margin: 2px;
-      font-size: 16px;
     }
 
-    .matrix input,
-    .result input {
-      background-color: #000;
+    .matrix-input {
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .matrix-input input {
+      width: 40px;
+      height: 40px;
+      margin: 2px;
+      background-color: black;
       color: white;
       border: 1px solid white;
+      text-align: center;
+    }
+
+    .matrix-label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .button-container {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     button {
-      margin: 5px;
-      padding: 10px 15px;
-      background-color: #ffcc00; /* kuning lemon */
+      background-color: #FFD700;
       border: none;
-      color: black;
-      cursor: pointer;
+      padding: 10px 15px;
       font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
     }
 
-    .matrices, .result {
-      margin: 15px 0;
-    }
-
-    .matrix, .result {
-      display: inline-block;
-      margin: 10px;
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Kalkulator Matriks</h2>
-    Baris: <input type="number" id="rows" value="2" min="1">
-    Kolom: <input type="number" id="cols" value="2" min="1">
-    <button onclick="generateMatrices()">Buat Matriks</button>
+    Baris: <input type="number" id="rows" value="2" min="1"> 
+    Kolom: <input type="number" id="cols" value="2" min="1"> 
+    <button onclick="generateMatrix()">Buat Matriks</button>
 
-    <div class="matrices">
-      <div class="matrix" id="matrixAContainer"><strong>Matrix A</strong><br></div>
-      <div class="matrix" id="matrixBContainer"><strong>Matrix B</strong><br></div>
+    <div id="matrices" style="margin-top:20px;"></div>
+
+    <div class="button-container">
+      <div class="button-group">
+        <button onclick="calculate('add')">Tambah (A + B)</button>
+        <button onclick="calculate('subtract')">Kurang (A - B)</button>
+      </div>
+      <div class="button-group">
+        <button onclick="calculate('multiply')">Kali (A × B)</button>
+        <button onclick="calculate('transposeA')">Transpose A</button>
+      </div>
+      <div class="button-group">
+        <button onclick="calculate('transposeB')">Transpose B</button>
+        <button onclick="calculate('determinant')">Determinan A</button>
+      </div>
+      <div class="button-group">
+        <button onclick="calculate('inverse')">Invers A</button>
+        <button onclick="clearAll()">Bersihkan</button>
+      </div>
     </div>
 
-    <div>
-      <button onclick="addMatrices()">Tambah (A + B)</button>
-      <button onclick="subtractMatrices()">Kurang (A - B)</button>
-      <button onclick="multiplyMatrices()">Kali (A × B)</button>
-      <button onclick="transposeMatrix('A')">Transpose A</button>
-      <button onclick="transposeMatrix('B')">Transpose B</button>
-      <button onclick="determinantMatrix('A')">Determinan A</button>
-      <button onclick="inverseMatrix('A')">Invers A</button>
-      <button onclick="clearAll()">Bersihkan</button>
-    </div>
-
-    <div class="result" id="resultContainer">
-      <h3>Hasil</h3>
-    </div>
+    <div id="result">Hasil</div>
   </div>
 
   <script>
-    function generateMatrix(containerId, prefix, rows, cols) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = `<strong>${prefix === 'A' ? 'Matrix A' : 'Matrix B'}</strong><br>`;
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-          const input = document.createElement("input");
-          input.type = "number";
-          input.id = `${prefix}_${i}_${j}`;
-          input.className = "matrix";
-          input.value = "0";
-          container.appendChild(input);
-        }
-        container.appendChild(document.createElement("br"));
-      }
+    function generateMatrix() {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const container = document.getElementById('matrices');
+      container.innerHTML = '';
+
+      const matrixA = createMatrixInputs('A', rows, cols);
+      const matrixB = createMatrixInputs('B', rows, cols);
+
+      container.appendChild(matrixA);
+      container.appendChild(matrixB);
     }
 
-    function getMatrix(prefix, rows, cols) {
-      const matrix = [];
+    function createMatrixInputs(name, rows, cols) {
+      const wrapper = document.createElement('div');
+      const label = document.createElement('div');
+      label.className = 'matrix-label';
+      label.textContent = 'Matrix ' + name;
+      wrapper.appendChild(label);
+
+      const matrixDiv = document.createElement('div');
+      matrixDiv.className = 'matrix-input';
+      matrixDiv.id = `matrix${name}`;
+
       for (let i = 0; i < rows; i++) {
-        const row = [];
         for (let j = 0; j < cols; j++) {
-          row.push(parseFloat(document.getElementById(`${prefix}_${i}_${j}`).value) || 0);
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.value = 0;
+          input.id = `${name}_${i}_${j}`;
+          matrixDiv.appendChild(input);
         }
-        matrix.push(row);
+        const br = document.createElement('br');
+        matrixDiv.appendChild(br);
       }
+
+      wrapper.appendChild(matrixDiv);
+      return wrapper;
+    }
+
+    function getMatrix(name) {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const matrix = [];
+
+      for (let i = 0; i < rows; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < cols; j++) {
+          matrix[i][j] = parseFloat(document.getElementById(`${name}_${i}_${j}`).value);
+        }
+      }
+
       return matrix;
     }
 
     function displayResult(matrix) {
-      const container = document.getElementById("resultContainer");
-      container.innerHTML = "<h3>Hasil</h3>";
+      const resultDiv = document.getElementById('result');
+      if (typeof matrix === 'number') {
+        resultDiv.innerHTML = `<br>Hasil: ${matrix}`;
+        return;
+      }
+
+      let html = '<br>Hasil:<br>';
       matrix.forEach(row => {
-        row.forEach(val => {
-          const input = document.createElement("input");
-          input.type = "text";
-          input.value = Math.round(val * 1000) / 1000;
-          input.disabled = true;
-          input.className = "result";
-          container.appendChild(input);
-        });
-        container.appendChild(document.createElement("br"));
+        html += row.map(num => num.toFixed(2)).join(' ') + '<br>';
       });
+
+      resultDiv.innerHTML = html;
     }
 
-    function generateMatrices() {
-      const rows = parseInt(document.getElementById("rows").value);
-      const cols = parseInt(document.getElementById("cols").value);
-      generateMatrix("matrixAContainer", "A", rows, cols);
-      generateMatrix("matrixBContainer", "B", rows, cols);
-      document.getElementById("resultContainer").innerHTML = "<h3>Hasil</h3>";
-    }
+    function calculate(type) {
+      const A = getMatrix('A');
+      const B = getMatrix('B');
 
-    function addMatrices() {
-      const rows = parseInt(document.getElementById("rows").value);
-      const cols = parseInt(document.getElementById("cols").value);
-      const A = getMatrix("A", rows, cols);
-      const B = getMatrix("B", rows, cols);
-      const result = A.map((row, i) => row.map((val, j) => val + B[i][j]));
-      displayResult(result);
-    }
+      try {
+        let result;
 
-    function subtractMatrices() {
-      const rows = parseInt(document.getElementById("rows").value);
-      const cols = parseInt(document.getElementById("cols").value);
-      const A = getMatrix("A", rows, cols);
-      const B = getMatrix("B", rows, cols);
-      const result = A.map((row, i) => row.map((val, j) => val - B[i][j]));
-      displayResult(result);
-    }
-
-    function multiplyMatrices() {
-      const r1 = parseInt(document.getElementById("rows").value);
-      const c1 = parseInt(document.getElementById("cols").value);
-      const r2 = r1;
-      const c2 = c1;
-      const A = getMatrix("A", r1, c1);
-      const B = getMatrix("B", r2, c2);
-      const result = Array.from({ length: r1 }, () => Array(c2).fill(0));
-      for (let i = 0; i < r1; i++) {
-        for (let j = 0; j < c2; j++) {
-          for (let k = 0; k < c1; k++) {
-            result[i][j] += A[i][k] * B[k][j];
-          }
+        switch (type) {
+          case 'add':
+            result = A.map((row, i) => row.map((val, j) => val + B[i][j]));
+            break;
+          case 'subtract':
+            result = A.map((row, i) => row.map((val, j) => val - B[i][j]));
+            break;
+          case 'multiply':
+            result = A.map((row, i) =>
+              B[0].map((_, j) =>
+                row.reduce((sum, val, k) => sum + val * B[k][j], 0)
+              )
+            );
+            break;
+          case 'transposeA':
+            result = A[0].map((_, i) => A.map(row => row[i]));
+            break;
+          case 'transposeB':
+            result = B[0].map((_, i) => B.map(row => row[i]));
+            break;
+          case 'determinant':
+            if (A.length !== A[0].length) throw 'Matriks harus persegi!';
+            result = determinant(A);
+            break;
+          case 'inverse':
+            if (A.length !== A[0].length) throw 'Matriks harus persegi!';
+            result = inverse(A);
+            break;
         }
+
+        displayResult(result);
+      } catch (err) {
+        alert('Error: ' + err);
       }
-      displayResult(result);
-    }
-
-    function transposeMatrix(matrixName) {
-      const rows = parseInt(document.getElementById("rows").value);
-      const cols = parseInt(document.getElementById("cols").value);
-      const M = getMatrix(matrixName, rows, cols);
-      const result = M[0].map((_, i) => M.map(row => row[i]));
-      displayResult(result);
-    }
-
-    function determinantMatrix(matrixName) {
-      const size = parseInt(document.getElementById("rows").value);
-      if (size !== parseInt(document.getElementById("cols").value)) {
-        alert("Matrix harus persegi untuk menghitung determinan!");
-        return;
-      }
-      const M = getMatrix(matrixName, size, size);
-
-      function det(matrix) {
-        if (matrix.length === 1) return matrix[0][0];
-        if (matrix.length === 2)
-          return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-        let determinant = 0;
-        for (let i = 0; i < matrix.length; i++) {
-          const minor = matrix.slice(1).map(row => row.filter((_, j) => j !== i));
-          determinant += matrix[0][i] * det(minor) * (i % 2 === 0 ? 1 : -1);
-        }
-        return determinant;
-      }
-
-      const result = [[det(M)]];
-      displayResult(result);
-    }
-
-    function inverseMatrix(matrixName) {
-      const size = parseInt(document.getElementById("rows").value);
-      if (size !== parseInt(document.getElementById("cols").value)) {
-        alert("Matrix harus persegi untuk menghitung invers!");
-        return;
-      }
-      const M = getMatrix(matrixName, size, size);
-      const det = determinant(M);
-      if (det === 0) {
-        alert("Matriks tidak memiliki invers (determinan = 0)");
-        return;
-      }
-
-      function determinant(matrix) {
-        if (matrix.length === 1) return matrix[0][0];
-        if (matrix.length === 2)
-          return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
-        let determinant = 0;
-        for (let i = 0; i < matrix.length; i++) {
-          const minor = matrix.slice(1).map(row => row.filter((_, j) => j !== i));
-          determinant += matrix[0][i] * determinantMatrixHelper(minor) * (i % 2 === 0 ? 1 : -1);
-        }
-        return determinant;
-      }
-
-      function determinantMatrixHelper(matrix) {
-        return determinant(matrix);
-      }
-
-      function getMinor(matrix, row, col) {
-        return matrix.filter((_, i) => i !== row).map(r => r.filter((_, j) => j !== col));
-      }
-
-      const cofactors = M.map((row, i) =>
-        row.map((_, j) => {
-          const minor = getMinor(M, i, j);
-          return ((i + j) % 2 === 0 ? 1 : -1) * determinant(minor);
-        })
-      );
-
-      const adjugate = cofactors[0].map((_, i) => cofactors.map(row => row[i]));
-      const inverse = adjugate.map(row => row.map(val => val / det));
-      displayResult(inverse);
     }
 
     function clearAll() {
-      document.getElementById("matrixAContainer").innerHTML = "";
-      document.getElementById("matrixBContainer").innerHTML = "";
-      document.getElementById("resultContainer").innerHTML = "<h3>Hasil</h3>";
+      document.getElementById('matrices').innerHTML = '';
+      document.getElementById('result').innerHTML = 'Hasil';
     }
 
-    window.onload = generateMatrices;
+    function determinant(m) {
+      const n = m.length;
+      if (n === 1) return m[0][0];
+      if (n === 2) return m[0][0]*m[1][1] - m[0][1]*m[1][0];
+
+      let det = 0;
+      for (let i = 0; i < n; i++) {
+        const minor = m.slice(1).map(row => row.filter((_, j) => j !== i));
+        det += m[0][i] * determinant(minor) * (i % 2 === 0 ? 1 : -1);
+      }
+      return det;
+    }
+
+    function inverse(m) {
+      const det = determinant(m);
+      if (det === 0) throw 'Determinan 0, tidak bisa diinvers.';
+
+      const n = m.length;
+      const adjugate = [];
+
+      for (let i = 0; i < n; i++) {
+        adjugate[i] = [];
+        for (let j = 0; j < n; j++) {
+          const minor = m
+            .filter((_, row) => row !== i)
+            .map(row => row.filter((_, col) => col !== j));
+          const cofactor = determinant(minor) * ((i + j) % 2 === 0 ? 1 : -1);
+          adjugate[i][j] = cofactor;
+        }
+      }
+
+      const adjT = adjugate[0].map((_, i) => adjugate.map(row => row[i]));
+      return adjT.map(row => row.map(val => val / det));
+    }
   </script>
 </body>
 </html>
