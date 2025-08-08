@@ -1,225 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kalkulator Matriks</title>
+  <meta charset="UTF-8">
+  <title>Kalkulator Matriks Dinamis</title>
   <style>
     body {
-      background: linear-gradient(to right, #1f1c2c, #ff69b4);
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #000000, #ff69b4);
       color: white;
       text-align: center;
-      padding: 20px;
+      padding: 30px;
     }
-
     h1 {
-      color: #ffcccb;
+      margin-bottom: 20px;
     }
-
-    select, input {
+    select, input[type="number"] {
       margin: 5px;
       padding: 5px;
-      font-size: 14px;
-      border-radius: 4px;
-      border: none;
-      text-align: center;
     }
-
-    button {
-      margin: 8px;
-      padding: 10px 15px;
-      background-color: #ff69b4;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .matrix {
-      display: inline-block;
-      margin: 10px;
-    }
-
-    #result {
+    .matrix-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
       margin-top: 20px;
-      font-size: 16px;
-      white-space: pre-wrap;
+    }
+    .matrix {
+      display: grid;
+      gap: 5px;
+    }
+    .matrix input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    button {
+      background-color: #ff69b4;
+      color: black;
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .result {
+      margin-top: 30px;
+    }
+    .matrix-label {
+      font-weight: bold;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Kalkulator Matriks</h1>
-
-  <label>Ordo Matriks:</label>
-  <select id="rows">
-    <option value="2">2</option>
-    <option value="3">3</option>
+  <h1>Kalkulator Matriks Dinamis</h1>
+  
+  <label for="rows">Baris:</label>
+  <select id="rows" onchange="createMatrices()">
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
   </select>
-  x
-  <select id="cols">
-    <option value="2">2</option>
-    <option value="3">3</option>
+  <label for="cols">Kolom:</label>
+  <select id="cols" onchange="createMatrices()">
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
   </select>
-  <button onclick="generateMatrix()">Buat Matriks</button>
+  
+  <div class="matrix-container">
+    <div>
+      <div class="matrix-label">Matrix A</div>
+      <div id="matrixA" class="matrix"></div>
+    </div>
+    <div>
+      <div class="matrix-label">Matrix B</div>
+      <div id="matrixB" class="matrix"></div>
+    </div>
+  </div>
 
-  <div id="matrixInput" style="margin-top: 20px;"></div>
-
-  <div>
+  <div class="buttons">
     <button onclick="operate('add')">Tambah</button>
     <button onclick="operate('subtract')">Kurang</button>
     <button onclick="operate('multiply')">Kali</button>
     <button onclick="operate('transpose')">Transpose A</button>
     <button onclick="operate('determinant')">Determinan A</button>
-    <button onclick="operate('inverse')">Invers A</button>
+    <button onclick="operate('inverse')">Inverse A</button>
+    <button onclick="clearAll()">Bersihkan</button>
   </div>
 
-  <div id="result"></div>
+  <div class="result">
+    <h3>Hasil:</h3>
+    <div id="result" class="matrix"></div>
+  </div>
 
   <script>
-    function generateMatrix() {
-      const r = parseInt(document.getElementById("rows").value);
-      const c = parseInt(document.getElementById("cols").value);
-      const container = document.getElementById("matrixInput");
-      container.innerHTML = "";
+    const createMatrices = () => {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const matrixA = document.getElementById('matrixA');
+      const matrixB = document.getElementById('matrixB');
+      matrixA.innerHTML = '';
+      matrixB.innerHTML = '';
+      matrixA.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      matrixB.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-      ["A", "B"].forEach(id => {
-        const matrixDiv = document.createElement("div");
-        matrixDiv.className = "matrix";
-        matrixDiv.innerHTML = `<h3>Matriks ${id}</h3>`;
-        for (let i = 0; i < r; i++) {
-          for (let j = 0; j < c; j++) {
-            matrixDiv.innerHTML += `<input type="number" id="${id}${i}${j}" value="0"/>`;
-          }
-          matrixDiv.innerHTML += "<br/>";
-        }
-        container.appendChild(matrixDiv);
-      });
-    }
+      for (let i = 0; i < rows * cols; i++) {
+        let inputA = document.createElement('input');
+        inputA.type = 'number';
+        inputA.id = 'a' + i;
+        matrixA.appendChild(inputA);
 
-    function getMatrix(id, r, c) {
+        let inputB = document.createElement('input');
+        inputB.type = 'number';
+        inputB.id = 'b' + i;
+        matrixB.appendChild(inputB);
+      }
+    };
+
+    const getMatrix = (idPrefix, rows, cols) => {
       const matrix = [];
-      for (let i = 0; i < r; i++) {
+      for (let r = 0; r < rows; r++) {
         const row = [];
-        for (let j = 0; j < c; j++) {
-          row.push(parseFloat(document.getElementById(id + i + j).value) || 0);
+        for (let c = 0; c < cols; c++) {
+          const val = parseFloat(document.getElementById(idPrefix + (r * cols + c)).value) || 0;
+          row.push(val);
         }
         matrix.push(row);
       }
       return matrix;
-    }
+    };
 
-    function printMatrix(matrix) {
-      return matrix.map(row => row.join("\t")).join("\n");
-    }
-
-    function addMatrix(a, b) {
-      return a.map((row, i) => row.map((val, j) => val + b[i][j]));
-    }
-
-    function subtractMatrix(a, b) {
-      return a.map((row, i) => row.map((val, j) => val - b[i][j]));
-    }
-
-    function multiplyMatrix(a, b) {
-      const result = [];
-      for (let i = 0; i < a.length; i++) {
-        result[i] = [];
-        for (let j = 0; j < b[0].length; j++) {
-          let sum = 0;
-          for (let k = 0; k < a[0].length; k++) {
-            sum += a[i][k] * b[k][j];
-          }
-          result[i][j] = sum;
+    const displayResult = (matrix) => {
+      const result = document.getElementById('result');
+      result.innerHTML = '';
+      if (typeof matrix === 'number') {
+        result.innerText = matrix.toFixed(2);
+        return;
+      }
+      result.style.gridTemplateColumns = `repeat(${matrix[0].length}, 1fr)`;
+      for (let r = 0; r < matrix.length; r++) {
+        for (let c = 0; c < matrix[0].length; c++) {
+          const cell = document.createElement('input');
+          cell.value = matrix[r][c].toFixed(2);
+          cell.disabled = true;
+          result.appendChild(cell);
         }
       }
-      return result;
-    }
+    };
 
-    function transposeMatrix(m) {
-      return m[0].map((_, i) => m.map(row => row[i]));
-    }
+    const operate = (type) => {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const A = getMatrix('a', rows, cols);
+      const B = getMatrix('b', rows, cols);
 
-    function determinantMatrix(m) {
-      if (m.length !== m[0].length) return "Matriks harus persegi.";
+      let result = [];
+
+      if (type === 'add') {
+        result = A.map((row, i) => row.map((val, j) => val + B[i][j]));
+      } else if (type === 'subtract') {
+        result = A.map((row, i) => row.map((val, j) => val - B[i][j]));
+      } else if (type === 'multiply') {
+        if (A[0].length !== B.length) return alert("Kolom A harus sama dengan baris B!");
+        for (let i = 0; i < rows; i++) {
+          result[i] = [];
+          for (let j = 0; j < cols; j++) {
+            let sum = 0;
+            for (let k = 0; k < cols; k++) {
+              sum += A[i][k] * B[k][j];
+            }
+            result[i][j] = sum;
+          }
+        }
+      } else if (type === 'transpose') {
+        result = A[0].map((_, i) => A.map(row => row[i]));
+      } else if (type === 'determinant') {
+        if (rows !== cols) return alert("Harus matriks persegi!");
+        result = determinant(A);
+      } else if (type === 'inverse') {
+        if (rows !== cols) return alert("Harus matriks persegi!");
+        result = inverse(A);
+        if (!result) return alert("Matriks tidak memiliki invers.");
+      }
+
+      displayResult(result);
+    };
+
+    const determinant = (m) => {
+      const n = m.length;
+      if (n === 2) return m[0][0]*m[1][1] - m[0][1]*m[1][0];
+      if (n === 3) {
+        return m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1]) -
+               m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0]) +
+               m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+      }
+      return NaN;
+    };
+
+    const inverse = (m) => {
+      const det = determinant(m);
+      if (det === 0 || isNaN(det)) return null;
       const n = m.length;
       if (n === 2) {
-        return m[0][0] * m[1][1] - m[0][1] * m[1][0];
-      }
-      if (n === 3) {
-        return (
-          m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
-          m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
-          m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
-        );
-      }
-      return "Hanya mendukung 2x2 atau 3x3.";
-    }
-
-    function inverseMatrix(m) {
-      const det = determinantMatrix(m);
-      if (typeof det !== "number" || det === 0) return "Tidak bisa di-invers.";
-      if (m.length === 2) {
-        const [[a, b], [c, d]] = m;
-        const inv = [
-          [d / det, -b / det],
-          [-c / det, a / det]
+        return [
+          [ m[1][1]/det, -m[0][1]/det],
+          [-m[1][0]/det,  m[0][0]/det]
         ];
-        return inv;
       }
-      if (m.length === 3) {
-        const inv = [];
-        for (let i = 0; i < 3; i++) {
-          inv[i] = [];
-          for (let j = 0; j < 3; j++) {
-            const minor = m
-              .filter((_, r) => r !== i)
-              .map(row => row.filter((_, c) => c !== j));
-            const cofactor = ((i + j) % 2 === 0 ? 1 : -1) * determinantMatrix(minor);
-            inv[i][j] = cofactor;
-          }
-        }
-        const adjoint = transposeMatrix(inv);
-        return adjoint.map(row => row.map(val => val / det));
-      }
-      return "Hanya mendukung 2x2 atau 3x3.";
-    }
+      return null;
+    };
 
-    function operate(op) {
-      const r = parseInt(document.getElementById("rows").value);
-      const c = parseInt(document.getElementById("cols").value);
-      const A = getMatrix("A", r, c);
-      const B = getMatrix("B", r, c);
-      let result = "";
+    const clearAll = () => {
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+      document.getElementById('result').innerHTML = '';
+    };
 
-      switch (op) {
-        case "add":
-          result = printMatrix(addMatrix(A, B));
-          break;
-        case "subtract":
-          result = printMatrix(subtractMatrix(A, B));
-          break;
-        case "multiply":
-          if (A[0].length !== B.length) {
-            result = "Kolom A harus sama dengan baris B.";
-          } else {
-            result = printMatrix(multiplyMatrix(A, B));
-          }
-          break;
-        case "transpose":
-          result = printMatrix(transposeMatrix(A));
-          break;
-        case "determinant":
-          result = determinantMatrix(A);
-          break;
-        case "inverse":
-          const inv = inverseMatrix(A);
-          result = Array.isArray(inv) ? printMatrix(inv) : inv;
-          break;
-      }
-
-      document.getElementById("result").innerText = "Hasil:\n" + result;
-    }
+    window.onload = createMatrices;
   </script>
 </body>
 </html>
