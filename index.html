@@ -198,33 +198,33 @@
     }
 
     function determinantMatrix() {
-      const A = getMatrix('matrixA');
-      if (A.length !== A[0].length) {
+      const M = getMatrix(matrixId === 'A' ? 'matrixA' : 'matrixB');
+      if (M.length !== M[0].length) {
         alert('Determinan hanya untuk matriks persegi!');
         return;
       }
-      if (A.length === 2) {
-        const det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+      if (M.length === 2) {
+        const det = M[0][0]*M[1][1] - M[0][1]*M[1][0];
         displayResult([[det]]);
       } else {
         alert('Saat ini hanya mendukung matriks 2x2');
       }
     }
 
-    function inverseMatrix() {
-      const A = getMatrix('matrixA');
-      if (A.length !== 2 || A[0].length !== 2) {
+    function inverseMatrix(matrixId) {
+      const M = getMatrix(matrixId === 'A' ? 'matrixA' : 'matrixB');
+      if (M.length !== 2 || M[0].length !== 2) {
         alert('Saat ini hanya mendukung invers untuk matriks 2x2');
         return;
       }
-      const det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
+      const det = M[0][0]*M[1][1] - M[0][1]*M[1][0];
       if (det === 0) {
         alert('Matriks tidak memiliki invers (determinan = 0)');
         return;
       }
       const inv = [
-        [ A[1][1]/det, -A[0][1]/det ],
-        [-A[1][0]/det,  A[0][0]/det ]
+        [ M[1][1]/det, -M[0][1]/det ],
+        [-M[1][0]/det,  M[0][0]/det ]
       ];
       displayResult(inv);
     }
